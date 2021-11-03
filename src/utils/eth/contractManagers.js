@@ -5,6 +5,7 @@ import BANK_NODE_LENDING_REWARDS from "./abi/bankNodeLendingRewardsAbi";
 import BANK_NODE_MANAGER from "./abi/bankNodeManager";
 import BNPL_BANK_NODE from "./abi/bnplBankNode";
 import BNPL_STAKING_POOL from "./abi/bnplStakingPool";
+import BNPL_PROTOCOL_CONFIG from "./abi/bnplProtocolConfig";
 import { ethers } from "ethers";
 
 function ContractManagers(signerOrProvider) {
@@ -48,6 +49,12 @@ function ContractManagers(signerOrProvider) {
     signerOrProvider
   );
 
+  const bnplProtocolConfig = new ethers.Contract(
+    contractConfig.BNPL_PROTOCOL_CONFIG,
+    BNPL_PROTOCOL_CONFIG,
+    signerOrProvider
+  )
+
 //   console.log(bankNodeLendingRewards, bankNodeManager, bnplBankNode, bnplStakingPool)
 
 
@@ -58,7 +65,42 @@ function ContractManagers(signerOrProvider) {
     const stakedTokenAmount = await stakingRewards.balanceOf(address);
     const lendingTokenAmount = await bankNodeLendingRewards.bankNodeManager();
     const balanceOf = await bankNodeLendingRewards.balanceOf(address, lendingTokenAmount);
-    console.log(balanceOf.toNumber())
+    
+    const addressBnpl = await bnplProtocolConfig.bnplToken()
+    const bankNodeManagerValue = await bnplProtocolConfig.bankNodeManager()
+    const networkId = await bnplProtocolConfig.networkId()
+    const networkName = await bnplProtocolConfig.networkName()
+    const upBeaconBankNode = await bnplProtocolConfig.upBeaconBankNode()
+    const upBeaconBankNodeLendingPoolToken = await bnplProtocolConfig.upBeaconBankNodeLendingPoolToken()
+    const upBeaconBankNodeLendingRewards = await bnplProtocolConfig.upBeaconBankNodeLendingRewards()
+    const upBeaconBankNodeManager = await bnplProtocolConfig.upBeaconBankNodeManager()
+    const upBeaconBankNodeStakingPool = await bnplProtocolConfig.upBeaconBankNodeStakingPool()
+    const upBeaconBankNodeStakingPoolToken = await bnplProtocolConfig.upBeaconBankNodeStakingPoolToken()
+
+    console.log(addressBnpl)
+    const tx0 = await rewardsToken.approve(addressBnpl, "5000000")
+    console.log(tx0)
+    const r0 = await tx0.wait();
+    console.log(r0)
+
+    const tx = await bankNodeManager.createBondedBankNode(address, "5000000", "0x110a13fc3efe6a245b50102d2d79b3e76125ae83", "test", "https://www.baidu.com")
+
+    console.log(tx)
+
+
+    
+    console.log({
+      bnplToken: addressBnpl,
+      bankNodeManager: bankNodeManagerValue,
+      networkId: networkId.toNumber(),
+      networkName,
+      upBeaconBankNode,
+      upBeaconBankNodeLendingPoolToken,
+      upBeaconBankNodeLendingRewards,
+      upBeaconBankNodeManager,
+      upBeaconBankNodeStakingPool,
+      upBeaconBankNodeStakingPoolToken
+    })
     return {
       address,
     //   lendingTokenAmount,
